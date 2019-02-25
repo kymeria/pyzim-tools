@@ -58,6 +58,11 @@ class mimeTypeList:
         return self.buf[off:end_off].decode('ascii')
 
 
+    def __len__(self):
+       end_buf = self.buf.index(bytes([0, 0]))
+       return self.buf.count(bytes([0]), 0, end_buf+1)
+
+
 class BaseStruct(metaclass=MetaBaseStruct):
     def __init__(self, buf):
         self.buf = buf
