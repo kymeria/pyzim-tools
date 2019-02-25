@@ -11,6 +11,19 @@ for t in (('c_uint8', 'B'),
     _name, _format = t
     CTYPES[_name] = struct.Struct('<'+_format)
 
+
+__all__ = ['MimetypeList',
+           'UrlPtrList',
+           'TitlePtrList',
+           'ClusterPtrList',
+           'Header',
+           'BaseDirent',
+           'ArticleDirent',
+           'RedirectDirent',
+           'LinkDeletedDirent',
+           'Cluster'
+          ]
+
 class AttributeDescriptor:
     def __init__(self, offset, ctype):
         self.offset = offset
