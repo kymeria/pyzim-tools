@@ -35,7 +35,7 @@ articleDirent_content = (
 
 
 def test_articleDirent():
-    d = pyzim.BaseDirent.new(articleDirent_content, 0)
+    d = pyzim.Dirent(articleDirent_content, 0)
     assert d.kind == "article"
     assert d.mimetype == 0x0002
     assert d.parameter_len == 0
@@ -63,7 +63,7 @@ redirectDirent_content = (
 
 
 def test_redirectDirent():
-    d = pyzim.BaseDirent.new(redirectDirent_content, 0)
+    d = pyzim.Dirent(redirectDirent_content, 0)
     assert d.kind == "redirect"
     assert d.mimetype == 0xFFFF
     assert d.parameter_len == 0
@@ -89,7 +89,7 @@ linkDirent_content = (
 
 
 def test_linkDirent():
-    d = pyzim.BaseDirent.new(linkDirent_content, 0)
+    d = pyzim.Dirent(linkDirent_content, 0)
     assert d.kind == "link"
     assert d.mimetype == 0xFFFE
     assert d.parameter_len == 0
@@ -114,7 +114,7 @@ deletedDirent_content = (
 
 
 def test_deletedDirent():
-    d = pyzim.BaseDirent.new(deletedDirent_content, 0)
+    d = pyzim.Dirent(deletedDirent_content, 0)
     assert d.kind == "deleted"
     assert d.mimetype == 0xFFFD
     assert d.parameter_len == 0

@@ -36,10 +36,7 @@ __all__ = [
     "TitlePtrList",
     "ClusterPtrList",
     "Header",
-    "BaseDirent",
-    "ArticleDirent",
-    "RedirectDirent",
-    "LinkDeletedDirent",
+    "Dirent",
     "Cluster",
 ]
 
@@ -160,15 +157,14 @@ class Header(BaseStruct):
 assert Header.csize == 80
 
 
-class BaseDirent(BaseStruct):
-    @staticmethod
-    def new(buf, offset):
+class Dirent(BaseStruct):
+    def __new__(cls, buf, offset):
         mimetype = CTYPES["c_uint16"].unpack_from(buf[offset:offset+2])[0]
         if mimetype == 0xFFFF:
-            return RedirectDirent(buf, offset)
+            return super(Dirent, cls).__new__(RedirectDirent)
         if mimetype in (0xFFFE, 0xFFFD):
-            return LinkDeletedDirent(buf, offset)
-        return ArticleDirent(buf, offset)
+            return super(Dirent, cls).__new__(LinkDeletedDirent)
+        return super(Dirent, cls).__new__(ArticleDirent)
 
     @property
     def url(self):
@@ -196,7 +192,7 @@ class BaseDirent(BaseStruct):
         return self.buf[off : off + self.parameter_len]
 
 
-class ArticleDirent(BaseDirent):
+class ArticleDirent(Dirent):
     kind = "article"
     _fields_ = [
         ("mimetype", "c_uint16"),
@@ -211,7 +207,7 @@ class ArticleDirent(BaseDirent):
 assert ArticleDirent.csize == 16
 
 
-class RedirectDirent(BaseDirent):
+class RedirectDirent(Dirent):
     kind = "redirect"
     _fields_ = [
         ("mimetype", "c_uint16"),
@@ -225,7 +221,7 @@ class RedirectDirent(BaseDirent):
 assert RedirectDirent.csize == 12
 
 
-class LinkDeletedDirent(BaseDirent):
+class LinkDeletedDirent(Dirent):
     _fields_ = [
         ("mimetype", "c_uint16"),
         ("parameter_len", "c_uint8"),

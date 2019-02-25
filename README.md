@@ -40,7 +40,7 @@ with open('icd10_fr_all_2012-01.zim', 'r+b') as f:
         print(h.articleCount) # 290
         urlPtrList = pyzim.UrlPtrList(h.buf, h.urlPtrPos)
         clusterPtrList = pyzim.ClusterPtrList(h.buf, h.clusterPtrPos)
-        d = pyzim.BaseDirent.new(h.buf, urlPtrList[100])
+        d = pyzim.Dirent(h.buf, urlPtrList[100])
         print(d.url) # 'CIM-10: groupe H10-H13.html'
         print(d.title) # 'CIM-10: groupe H10-H13'
         cluster = pyzim.Cluster(h.buf, clusterPtrList[d.clusterNumber])

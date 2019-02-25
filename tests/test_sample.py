@@ -64,20 +64,20 @@ def test_header():
 def test_dirent():
     h = Header(sampleZim_content, 0)
     urls = UrlPtrList(h.buf, h.urlPtrPos)
-    d0 = BaseDirent.new(h.buf, urls[0])
+    d0 = Dirent(h.buf, urls[0])
     assert d0.namespace == b"A"
     assert d0.url == "Auto"
     assert d0.title == ""
     assert d0.kind == "article"
     assert d0.clusterNumber == 0
     assert d0.blobNumber == 0
-    d1 = BaseDirent.new(h.buf, urls[1])
+    d1 = Dirent(h.buf, urls[1])
     assert d1.namespace == b"A"
     assert d1.url == "Automobile"
     assert d1.title == ""
     assert d1.kind == "redirect"
     assert d1.redirect_index == 0
-    d2 = BaseDirent.new(h.buf, urls[2])
+    d2 = Dirent(h.buf, urls[2])
     assert d2.namespace == b"B"
     assert d2.url == "Auto"
     assert d2.title == ""
@@ -90,14 +90,14 @@ def test_cluster():
     h = Header(sampleZim_content, 0)
     urls = UrlPtrList(h.buf, h.urlPtrPos)
     clusterOffsets = ClusterPtrList(h.buf, h.clusterPtrPos)
-    d0 = BaseDirent.new(h.buf, urls[0])
+    d0 = Dirent(h.buf, urls[0])
     cOffset = clusterOffsets[d0.clusterNumber]
     c = Cluster(h.buf, cOffset)
     assert c.compression == 4
     assert c.extended == 0
     assert c.get_blob_data(d0.blobNumber) == b"<h1>Auto</h1>"
 
-    d2 = BaseDirent.new(h.buf, urls[2])
+    d2 = Dirent(h.buf, urls[2])
     cOffset = clusterOffsets[d2.clusterNumber]
     c = Cluster(h.buf, cOffset)
     assert c.compression == 4
