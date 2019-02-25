@@ -1,5 +1,5 @@
 
-from struct import Struct
+import struct
 from lzma import LZMADecompressor, FORMAT_XZ
 
 CTYPES = {}
@@ -9,7 +9,7 @@ for t in (('c_uint8', 'B'),
           ('c_uint32', 'I'),
           ('c_uint64', 'Q')):
     _name, _format = t
-    CTYPES[_name] = Struct('<'+_format)
+    CTYPES[_name] = struct.Struct('<'+_format)
 
 class AttributeDescriptor:
     def __init__(self, offset, ctype):
@@ -17,7 +17,7 @@ class AttributeDescriptor:
         try:
             self.ctype = CTYPES[ctype]
         except KeyError:
-            self.ctype = Struct('<'+ctype)
+            self.ctype = struct.Struct('<'+ctype)
 
     def __get__(self, obj, objtype):
         return self.ctype.unpack_from(obj.buf, self.offset)[0]
@@ -73,7 +73,10 @@ class BaseArray:
 
     def __getitem__(self, index):
         offset = index*self.ctype.size
-        return self.ctype.unpack_from(self.buf, offset)[0]
+        try:
+            return self.ctype.unpack_from(self.buf, offset)[0]
+        except struct.error:
+            raise IndexError
 
 
 class UrlPtrList(BaseArray):
