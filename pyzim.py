@@ -135,6 +135,7 @@ class BaseDirent(BaseStruct):
         return self.buf[off:off+self.parameter_len]
 
 class ArticleDirent(BaseDirent):
+    kind = 'article'
     _fields_ = [
         ('mimetype', 'c_uint16'),
         ('parameter_len', 'c_uint8'),
@@ -146,6 +147,7 @@ class ArticleDirent(BaseDirent):
 assert ArticleDirent.csize == 16
 
 class RedirectDirent(BaseDirent):
+    kind = 'redirect'
     _fields_ = [
         ('mimetype', 'c_uint16'),
         ('parameter_len', 'c_uint8'),
@@ -163,6 +165,9 @@ class LinkDeletedDirent(BaseDirent):
         ('revision', 'c_uint32')
     ]
 
+    @property
+    def kind(self):
+        return 'link' if self.mimetype == 0xfffe else 'deleted'
 assert LinkDeletedDirent.csize == 8
 
 class NormalBlobOffsetArray(BaseArray):
