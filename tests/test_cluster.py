@@ -45,7 +45,7 @@ def cluster_info(request):
 
 def test_mimeList_content(cluster_info):
     cluster_content, compressed, extended, nbBlob = cluster_info
-    c = pyzim.Cluster(cluster_content)
+    c = pyzim.Cluster(cluster_content, 0)
     assert c.compression == (4 if compressed else 0)
     assert c.extended == extended
     assert c.nb_blobs == nbBlob

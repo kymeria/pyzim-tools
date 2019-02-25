@@ -44,7 +44,7 @@ header_content_nochecksum = bytes([
 
 
 def test_sample_header():
-    h = pyzim.Header(header_content)
+    h = pyzim.Header(header_content, 0)
     assert h.magicNumber == 72173914
     assert h.majorVersion == 5
     assert h.minorVersion == 0
@@ -61,7 +61,7 @@ def test_sample_header():
 
 
 def test_sample_nochecksum():
-    h = pyzim.Header(header_content_nochecksum)
+    h = pyzim.Header(header_content_nochecksum, 0)
     assert h.mimeListPos == 72
     with pytest.raises(ValueError):
         assert h.checksumPos == 0

@@ -34,7 +34,7 @@ def test_baseArray_uint8():
     class Array8(pyzim.BaseArray):
         ctype = pyzim.CTYPES["c_uint8"]
 
-    a = Array8(array_content)
+    a = Array8(array_content, 0)
     for i in range(0x60):
         assert a[i] == i
     with pytest.raises(IndexError):
@@ -45,7 +45,7 @@ def test_baseArray_uint16():
     class Array16(pyzim.BaseArray):
         ctype = pyzim.CTYPES["c_uint16"]
 
-    a = Array16(array_content)
+    a = Array16(array_content, 0)
     max_index = 0x60 // 2
     for i in range(max_index):
         v = ((i * 2 + 1) << 8) + i * 2
@@ -58,7 +58,7 @@ def test_baseArray_uint32():
     class Array32(pyzim.BaseArray):
         ctype = pyzim.CTYPES["c_uint32"]
 
-    a = Array32(array_content)
+    a = Array32(array_content, 0)
     max_index = 0x60 // 4
     for i in range(max_index):
         v = ((i * 4 + 3) << 24) + ((i * 4 + 2) << 16) + ((i * 4 + 1) << 8) + i * 4
@@ -71,7 +71,7 @@ def test_baseArray_uint64():
     class Array64(pyzim.BaseArray):
         ctype = pyzim.CTYPES["c_uint64"]
 
-    a = Array64(array_content)
+    a = Array64(array_content, 0)
     max_index = 0x60 // 8
     for i in range(max_index):
         v = (

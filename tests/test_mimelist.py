@@ -32,7 +32,7 @@ mimeList_content = (
 
 
 def test_mimeList_content():
-    m = pyzim.MimetypeList(mimeList_content)
+    m = pyzim.MimetypeList(mimeList_content, 0)
     assert len(m) == 3
     assert m[0] == "text/html"
     assert m[1] == "text/plain"

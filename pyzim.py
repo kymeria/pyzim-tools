@@ -53,7 +53,7 @@ class AttributeDescriptor:
             self.ctype = struct.Struct("<" + ctype)
 
     def __get__(self, obj, objtype):
-        return self.ctype.unpack_from(obj.buf, self.offset)[0]
+        return self.ctype.unpack_from(obj.buf, obj.offset + self.offset)[0]
 
 
 class MetaBaseStruct(type):
@@ -76,38 +76,41 @@ class MetaBaseStruct(type):
 
 
 class MimetypeList:
-    def __init__(self, buf):
+    def __init__(self, buf, offset):
         self.buf = buf
+        self.offset = offset
 
     def __getitem__(self, index):
-        off = 0
+        off = self.offset
         for i in range(index):
-            end_off = self.buf.index(bytes([0]), off)
+            end_off = self.buf.find(bytes([0]), off)
             if end_off == off:
                 # empty string, end of the mimelist.
                 raise IndexError
             off = end_off + 1
-        end_off = self.buf.index(bytes([0]), off)
+        end_off = self.buf.find(bytes([0]), off)
         if end_off == off:
             raise IndexError
         return self.buf[off:end_off].decode("ascii")
 
     def __len__(self):
-        end_buf = self.buf.index(bytes([0, 0]))
-        return self.buf.count(bytes([0]), 0, end_buf + 1)
+        end_buf = self.buf.find(bytes([0, 0]), self.offset)
+        return self.buf.count(bytes([0]), self.offset, end_buf + 1)
 
 
 class BaseStruct(metaclass=MetaBaseStruct):
-    def __init__(self, buf):
+    def __init__(self, buf, offset):
         self.buf = buf
+        self.offset = offset
 
 
 class BaseArray:
-    def __init__(self, buf):
+    def __init__(self, buf, offset):
         self.buf = buf
+        self.offset = offset
 
     def __getitem__(self, index):
-        offset = index * self.ctype.size
+        offset = self.offset + index * self.ctype.size
         try:
             return self.ctype.unpack_from(self.buf, offset)[0]
         except struct.error:
@@ -159,37 +162,37 @@ assert Header.csize == 80
 
 class BaseDirent(BaseStruct):
     @staticmethod
-    def new(buf):
-        mimetype = CTYPES["c_uint16"].unpack_from(buf)[0]
+    def new(buf, offset):
+        mimetype = CTYPES["c_uint16"].unpack_from(buf[offset:offset+2])[0]
         if mimetype == 0xFFFF:
-            return RedirectDirent(buf)
+            return RedirectDirent(buf, offset)
         if mimetype in (0xFFFE, 0xFFFD):
-            return LinkDeletedDirent(buf)
-        return ArticleDirent(buf)
+            return LinkDeletedDirent(buf, offset)
+        return ArticleDirent(buf, offset)
 
     @property
     def url(self):
-        off = self.csize
-        end_off = self.buf.index(bytes([0]), off)
+        off = self.offset + self.csize
+        end_off = self.buf.find(bytes([0]), off)
         return self.buf[off:end_off].decode()
 
     @property
     def title(self):
         # Start of url
-        off = self.csize
+        off = self.offset + self.csize
         # Start of title
-        off = self.buf.index(bytes([0]), off) + 1
-        end_off = self.buf.index(bytes([0]), off)
+        off = self.buf.find(bytes([0]), off) + 1
+        end_off = self.buf.find(bytes([0]), off)
         return self.buf[off:end_off].decode()
 
     @property
     def extra_data(self):
         # Start of url
-        off = self.csize
+        off = self.offset + self.csize
         # Start of title
-        off = self.buf.index(bytes([0]), off) + 1
+        off = self.buf.find(bytes([0]), off) + 1
         # Start of data
-        off = self.buf.index(bytes([0]), off) + 1
+        off = self.buf.find(bytes([0]), off) + 1
         return self.buf[off : off + self.parameter_len]
 
 
@@ -249,8 +252,8 @@ class ExtendedBlobOffsetArray(BaseArray):
 class Cluster(BaseStruct):
     _fields_ = [("info", "c_uint8")]
 
-    def __init__(self, buf):
-        super().__init__(buf)
+    def __init__(self, buf, offset):
+        super().__init__(buf, offset)
         self._data = None
         self._offsetArray = None
 
@@ -267,10 +270,15 @@ class Cluster(BaseStruct):
         if self.compression == 4:
             if self._data is None:
                 decompressor = LZMADecompressor(format=FORMAT_XZ)
-                self._data = decompressor.decompress(self.buf[1:])
-            return self._data
+                offset = self.offset + 1
+                self._data = b""
+                while decompressor.needs_input:
+                    idata = self.buf[offset:offset+1024]
+                    self._data += decompressor.decompress(idata)
+                    offset += 1024
+            return self._data, 0
         else:
-            return self.buf[1:]
+            return self.buf, self.offset+1
 
     @property
     def offsetArray(self):
@@ -278,7 +286,7 @@ class Cluster(BaseStruct):
             OffsetArrayType = (
                 ExtendedBlobOffsetArray if self.extended else NormalBlobOffsetArray
             )
-            self._offsetArray = OffsetArrayType(self.data)
+            self._offsetArray = OffsetArrayType(*self.data)
         return self._offsetArray
 
     @property
@@ -299,4 +307,5 @@ class Cluster(BaseStruct):
     def get_blob_data(self, index):
         blob_offset = self.get_blob_offset(index)
         end_offset = self.get_blob_offset(index + 1)
-        return self.data[blob_offset:end_offset]
+        data, offset = self.data
+        return data[offset+blob_offset:offset+end_offset]
