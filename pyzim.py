@@ -36,7 +36,7 @@ class MetaBaseStruct(type):
             if size is None:
                 size = attrs[name].ctype.size
             offset += size
-        attrs['size'] = offset
+        attrs['csize'] = offset
 
         return super().__new__(cls, name, bases, attrs)
 
@@ -96,8 +96,8 @@ class Header(BaseStruct):
         ('layoutPage', 'c_uint32'),
         ('checksumPos', 'c_uint64'),
     ]
-assert(Header.size == 80)
 
+assert(Header.csize == 80)
 
 class BaseDirent(BaseStruct):
     @staticmethod
@@ -111,14 +111,14 @@ class BaseDirent(BaseStruct):
 
     @property
     def url(self):
-        off = self.size
+        off = self.csize
         end_off = self.buf.index(bytes([0]), off)
         return self.buf[off:end_off].decode()
 
     @property
     def title(self):
         # Start of url
-        off = self.size
+        off = self.csize
         # Start of title
         off = self.buf.index(bytes([0]), off) + 1
         end_off = self.buf.index(bytes([0]), off)
@@ -127,7 +127,7 @@ class BaseDirent(BaseStruct):
     @property
     def extra_data(self):
         # Start of url
-        off = self.size
+        off = self.csize
         # Start of title
         off = self.buf.index(bytes([0]), off) + 1
         # Start of data
@@ -143,7 +143,7 @@ class ArticleDirent(BaseDirent):
         ('clusterNumber', 'c_uint32'),
         ('blobNumber', 'c_uint32')
     ]
-assert ArticleDirent.size == 16
+assert ArticleDirent.csize == 16
 
 class RedirectDirent(BaseDirent):
     _fields_ = [
@@ -153,7 +153,7 @@ class RedirectDirent(BaseDirent):
         ('revision', 'c_uint32'),
         ('redirect_index', 'c_uint32')
     ]
-assert RedirectDirent.size == 12
+assert RedirectDirent.csize == 12
 
 class LinkDeletedDirent(BaseDirent):
     _fields_ = [
@@ -162,8 +162,8 @@ class LinkDeletedDirent(BaseDirent):
         ('namespace', 'c_char'),
         ('revision', 'c_uint32')
     ]
-assert LinkDeletedDirent.size == 8
 
+assert LinkDeletedDirent.csize == 8
 
 class NormalBlobOffsetArray(BaseArray):
     ctype = CTYPES['c_uint32']
