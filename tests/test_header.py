@@ -1,9 +1,7 @@
-
-
 import pytest
 import pyzim
 
-
+# fmt: off
 header_content = bytes([
 0x5a, 0x49, 0x4d, 0x04, 0x05, 0x00, 0x00, 0x00, 0x19, 0xfd,
 0x91, 0x00, 0x73, 0x2b, 0xcf, 0xb6, 0x34, 0x06, 0x55, 0x19,
@@ -25,6 +23,7 @@ header_content_nochecksum = bytes([
 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 0xff, 0xff
 ])
+# fmt: on
 
 
 def test_sample_header():
@@ -32,15 +31,15 @@ def test_sample_header():
     assert h.magicNumber == 72173914
     assert h.majorVersion == 5
     assert h.minorVersion == 0
-    assert h.uuid == bytes([0x19, 0xfd, 0x91, 0x00, 0x73, 0x2b, 0xcf, 0xb6, 0x34, 0x06, 0x55, 0x19, 0xac, 0x2e, 0x03, 0xc4])
+    assert h.uuid == header_content[8:24]
     assert h.articleCount == 3
     assert h.clusterCount == 1
     assert h.urlPtrPos == 102
     assert h.titlePtrPos == 126
     assert h.clusterPtrPos == 206
     assert h.mimeListPos == 80
-    assert h.mainPage == 0xffffffff
-    assert h.layoutPage == 0xffffffff
+    assert h.mainPage == 0xFFFFFFFF
+    assert h.layoutPage == 0xFFFFFFFF
     assert h.checksumPos == 295
 
 
