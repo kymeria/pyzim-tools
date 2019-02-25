@@ -28,13 +28,13 @@ class MetaBaseStruct(type):
         offset = 0
         for field in fields:
             if len(field) == 3:
-               name, ctype, size = field
+               name_, ctype, size = field
             else:
-               name, ctype = field
+               name_, ctype = field
                size = None
-            attrs[name] = AttributeDescriptor(offset, ctype)
+            attrs[name_] = AttributeDescriptor(offset, ctype)
             if size is None:
-                size = attrs[name].ctype.size
+                size = attrs[name_].ctype.size
             offset += size
         attrs['csize'] = offset
 
