@@ -1,6 +1,6 @@
 
 from struct import Struct
-from lzma import LZMADecompressor
+from lzma import LZMADecompressor, FORMAT_XZ
 
 CTYPES = {}
 for t in (('c_uint8', 'B'),
@@ -212,7 +212,7 @@ class Cluster(BaseStruct):
     def data(self):
         if self.compression == 4:
             if self._data is None:
-                decompressor = LZMADecompressor()
+                decompressor = LZMADecompressor(format=FORMAT_XZ)
                 self._data = decompressor.decompress(self.buf[1:])
             return self._data
         else:
