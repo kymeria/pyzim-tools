@@ -40,7 +40,7 @@ class MetaBaseStruct(type):
 
         return super().__new__(cls, name, bases, attrs)
 
-class mimeTypeList:
+class MimetypeList:
     def __init__(self, buf):
         self.buf = buf
 
@@ -285,7 +285,7 @@ sample_zim =  bytes([
 
 if __name__ == "__main__":
     h = Header(sample_zim)
-    m = mimeTypeList(h.buf[h.mimeListPos:])
+    m = MimetypeList(h.buf[h.mimeListPos:])
     print(m[0])
     print(m[1])
 
