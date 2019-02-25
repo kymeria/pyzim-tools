@@ -99,9 +99,18 @@ class Header(BaseStruct):
         ('mimeListPos', 'c_uint64'),
         ('mainPage', 'c_uint32'),
         ('layoutPage', 'c_uint32'),
-        ('checksumPos', 'c_uint64'),
+        ('_checksumPos', 'c_uint64'),
     ]
 
+    @property
+    def size(self):
+        return self.mimeListPos
+
+    @property
+    def checksumPos(self):
+        if self.mimeListPos < 80:
+            raise ValueError("Header has no checksumPos")
+        return self._checksumPos
 assert(Header.csize == 80)
 
 class BaseDirent(BaseStruct):
