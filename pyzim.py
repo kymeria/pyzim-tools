@@ -206,7 +206,7 @@ class Cluster(BaseStruct):
 
     @property
     def extended(self):
-        return bool(self.info & 0b0001000)
+        return bool(self.info & 0b00010000)
 
     @property
     def data(self):
