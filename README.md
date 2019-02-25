@@ -23,5 +23,28 @@ This code is GPLv3.0
 
 ## How to use it ?
 
-Have a look in the tests directory.
-Especially [tests/test_sample.py](https://github.com/kymeria/pyzim-tools/blob/master/tests/test_sample.py)
+
+To install pyzim-tools (probably in a virtualenv) :
+
+```bash
+pip3 install https://github.com/kymeria/pyzim-tools/zipball/master
+```
+
+Then in python :
+```python
+import pyzim
+import mmap
+with open('icd10_fr_all_2012-01.zim', 'r+b') as f:
+    with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+        h = pyzim.Header(mm)
+        print(h.articleCount) # 290
+        urlPtrList = pyzim.UrlPtrList(h.buf[h.urlPtrPos:])
+        clusterPtrList = pyzim.ClusterPtrList(h.buf[h.clusterPtrPos :])
+        d = pyzim.BaseDirent.new(h.buf[urlPtrList[100]:])
+        print(d.url) # 'CIM-10: groupe H10-H13.html'
+        print(d.title) # 'CIM-10: groupe H10-H13'
+        cluster = pyzim.Cluster(h.buf[clusterPtrList[d.clusterNumber]:])
+        print(cluster.get_blob_data(d.blobNumber)) # b'<!DOCTYPE HTML SYSTEM "HTML32.DTD" >\n<html>\n<head>\n<title>CIM-10: groupe...`
+```
+
+Also have a look in the tests directory.
