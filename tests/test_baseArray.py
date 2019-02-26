@@ -15,7 +15,7 @@
 # along with pyzim-tools.  If not, see <https://www.gnu.org/licenses/>.
 
 import pytest
-import pyzim
+from pyzim.structs import BaseArray, CTYPES
 
 
 # fmt: off
@@ -31,8 +31,8 @@ array_content = bytes([
 
 
 def test_baseArray_uint8():
-    class Array8(pyzim.BaseArray):
-        ctype = pyzim.CTYPES["c_uint8"]
+    class Array8(BaseArray):
+        ctype = CTYPES["c_uint8"]
 
     a = Array8(array_content, 0)
     for i in range(0x60):
@@ -42,8 +42,8 @@ def test_baseArray_uint8():
 
 
 def test_baseArray_uint16():
-    class Array16(pyzim.BaseArray):
-        ctype = pyzim.CTYPES["c_uint16"]
+    class Array16(BaseArray):
+        ctype = CTYPES["c_uint16"]
 
     a = Array16(array_content, 0)
     max_index = 0x60 // 2
@@ -55,8 +55,8 @@ def test_baseArray_uint16():
 
 
 def test_baseArray_uint32():
-    class Array32(pyzim.BaseArray):
-        ctype = pyzim.CTYPES["c_uint32"]
+    class Array32(BaseArray):
+        ctype = CTYPES["c_uint32"]
 
     a = Array32(array_content, 0)
     max_index = 0x60 // 4
@@ -68,8 +68,8 @@ def test_baseArray_uint32():
 
 
 def test_baseArray_uint64():
-    class Array64(pyzim.BaseArray):
-        ctype = pyzim.CTYPES["c_uint64"]
+    class Array64(BaseArray):
+        ctype = CTYPES["c_uint64"]
 
     a = Array64(array_content, 0)
     max_index = 0x60 // 8
